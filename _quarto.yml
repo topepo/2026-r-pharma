@@ -1,0 +1,24 @@
+project:
+  title: "Deep Learning and Foundational Models for Tabular Data in R"
+  output-dir: docs
+
+format:
+  revealjs:
+    slide-number: true
+    theme: [tidymodels.scss]
+    width: 1280
+    height: 720
+    show-notes: false
+    pdf-max-pages-per-slide: 1
+    html-math-method: katex
+
+
+
+knitr:
+  opts_chunk:
+    echo: true
+    collapse: true
+    comment: "#>"
+    fig.path: "figures/"
+
+fig-format: svg
