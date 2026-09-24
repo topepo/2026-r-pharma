@@ -35,7 +35,7 @@ pkg_chr <- function(x, cran = TRUE) {
 - Package installs
 - Classical neural networks: multilayer perceptrons
 - Modern neural networks architectures
-- Foundational Models
+- Foundational models
 
 ## Packages
 
@@ -697,7 +697,7 @@ p +
 
 # Foundational Models {background-color="#70B7E1FF"}
 
-## Foundational Models
+## Foundational models
 
 Normally we fit a neural network to a training set. Then we can use it to make predictions. 
 
@@ -709,7 +709,7 @@ Foundational neural networks are very large _pretrained_ models (about 10<sup>8<
 
 How are they trained? 
 
-## Simulated Random Data
+## Simulated random data
 
 The networks treat the entire dataset as a training set point and use millions of training points.
 
@@ -848,6 +848,7 @@ icl_uptake |>
   labs(x = "Training Set Size", y = "Out-of-Sample Performance")
 ```
 
+
 ## Notes on foundational models
 
 - They appear to be highly resistant to non-informative predictors. 
@@ -857,5 +858,89 @@ icl_uptake |>
 - TabPFN has a very rapid development cycle. Improvements come out every few months. 
 - There are foundational models specific to time series forecasting.
   - TabICL has one and Amazon created chronos2 (also avalable in `r pkg(brulee)`)
+
+## TabICL test results
+
+```{r}
+#| label: tabicl-test
+#| cache: false
+cls_mtr <- metric_set(brier_class, roc_auc, mn_log_loss)
+
+icl_test_pred <- augment(icl_fit, cls_te)
+
+icl_test_pred |> cls_mtr(class, .pred_red)
+```
+
+## TabICL test results
+
+```{r}
+#| label: tabicl-test-plot
+#| echo: false
+#| fig-align: center
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "50%"
+#| cache: true
+cls_te |>
+  ggplot(aes(A, B)) +
+  geom_point(
+    aes(col = class), 
+    cex = 2, alpha = 3 / 4
+  ) +
+  coord_fixed() +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "top") + 
+  geom_contour(
+    data = grid_tabicl,
+    aes(z = .pred_red),
+    breaks = 1 / 2,
+    col = "black",
+    linewidth = 1
+  )
+```
+## References
+
+**General**
+
+- Vaswani, A, N Shazeer, N Parmar, J Uszkoreit, L Jones, A Gomez, Ł Kaiser, and I Polosukhin. 2017. "[Attention Is All You Need](https://proceedings.neurips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html)." Advances in Neural Information Processing Systems 30.
+
+- Gorishniy, Y, I Rubachev, V Khrulkov, and A Babenko. 2021. "[Revisiting Deep Learning Models for Tabular Data](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Revisiting+deep+learning+models+for+tabular+data&as_ylo=2021&as_yhi=2021&btnG=)." Advances in Neural Information Processing Systems 34: 18932–43.
+
+- Shwartz-Ziv, R, and A Armon. 2022. "[Tabular Data: Deep Learning Is Not All You Need](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Tabular+data+Deep+learning+is+not+all+you+need&as_ylo=2022&as_yhi=2022&btnG=)." Information Fusion 81: 84–90.
+
+
+## References
+
+**ResNet**
+
+- He, K, X Zhang, S Ren, and J Sun. 2016. "[Deep Residual Learning for Image Recognition](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Deep+residual+learning+for+image+recognition&as_ylo=2016&as_yhi=2016&btnG=)." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 770–78.
+
+- Gorishniy, Y, I Rubachev, V Khrulkov, and A Babenko. 2021. "[Revisiting Deep Learning Models for Tabular Data](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Revisiting+deep+learning+models+for+tabular+data&as_ylo=2021&as_yhi=2021&btnG=)." Advances in Neural Information Processing Systems 34: 18932–43.  (see Eq 2)
+
+**SAINT**: 
+
+- Somepalli, G, M Goldblum, A Schwarzschild, B Bruss, and T Goldstein. 2021. "[Saint: Improved Neural Networks for Tabular Data via Row Attention and Contrastive Pre-Training](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+Saint+Improved+neural+networks+for+tabular+data+via+row+attention+and+contrastive+pre+training&as_ylo=2021&as_yhi=2021&btnG=)." arXiv Preprint arXiv:2106.01342.
+
+## References
+
+**TabICL**: 
+
+- Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2025. "[TabICL: A Tabular Foundation Model for in-Context Learning on Large Data](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabICL+A+tabular+foundation+model+for+in+context+learning+on+large+data&as_ylo=2025&as_yhi=2025&btnG=)." arXiv Preprint arXiv:2502.05564.
+
+- Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2026. "[TabICLv2: A Better, Faster, Scalable, and Open Tabular Foundation Model](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabICLv2+A+better+faster+scalable+and+open+tabular+foundation+model&as_ylo=2026&as_yhi=2026&btnG=)." arXiv Preprint arXiv:2602.11139.
+
+## References
+
+**TabPFN**: 
+
+- Müller, S, N Hollmann, S Arango, J Grabocka, and F Hutter. 2021. "[Transformers Can Do Bayesian Inference](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Transformers+can+do+bayesian+inference&as_ylo=2021&as_yhi=2021&btnG=)." arXiv Preprint arXiv:2112.10510.
+
+- Hollmann, N, S Müller, K Eggensperger, and F Hutter. 2022. "[TabPFN: A Transformer That Solves Small Tabular Classification Problems in a Second](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabPFN+A+transformer+that+solves+small+tabular+classification+problems+in+a+second&as_ylo=2022&as_yhi=2022&btnG=)." arXiv Preprint arXiv:2207.01848.
+
+- Hollmann, N, S Müller, L Purucker, A Krishnakumar, M Körfer, S Hoo, R Schirrmeister, and F Hutter. 2025. "[Accurate Predictions on Small Data with a Tabular Foundation Model](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Accurate+predictions+on+small+data+with+a+tabular+foundation+model&as_ylo=2025&as_yhi=2025&btnG=)." Nature 637 (8045): 319–26.
+
+- Grinsztajn, L, K Flöge, O Key, F Birkel, P Jund, B Roof, M Manium, et al. 2026. "[TabPFN-3: Technical Report](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabPFN+3+Technical+Report&as_ylo=2026&as_yhi=2026&btnG=)." arXiv Preprint arXiv:2605.13986.
+
+
 
 # Thanks for listening! {background-color="#FAE093FF"}
