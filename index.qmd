@@ -8,7 +8,6 @@ institute: "Posit PBC"
 ```{r}
 #| label: startup
 #| include: false
-
 library(brulee)
 library(tidymodels)
 theme_set(theme_bw())
@@ -120,11 +119,15 @@ knitr::include_graphics("images/nnet_start.svg")
 
 ::: {.column width="30%"}
 Connections often use nonlinear [_activation functions_](https://aml4td.org/chapters/cls-neural-nets.html#sec-nnet-activation) for $\sigma(\cdot)$.
+
+<br>
+
+The hidden unit variables (and others) are commonly called [embeddings](https://vickiboykis.com/what_are_embeddings/).
 :::
 
 ::::
 
-## Activation Functions
+## Activation Functions ($\sigma$)
 
 
 <br>
@@ -175,7 +178,33 @@ act_functions |>
   theme_bw()
 ```
 
+
 ## Multilayer perceptrons
+
+<br> 
+
+:::: {.columns}
+
+::: {.column width="70%"}
+
+```{r}
+#| label: mlp-end
+#| echo: false
+#| fig-align: center
+#| out-width: "100%"
+
+knitr::include_graphics("images/nnet_end.svg")
+```
+:::
+
+::: {.column width="30%"}
+Multiple terminal columns for classification and a single column for regression. 
+:::
+
+::::
+
+
+## Multilayer perceptrons for tabular data
 
 - High maintenance
   - Lots of [preprocessing](https://aml4td.org/chapters/cls-neural-nets.html#sec-nnet-preprocessing).
@@ -191,6 +220,7 @@ act_functions |>
 
 ```{r}
 #| label: data-splitting
+#| code-line-numbers: "|1|2|4-6|10|11|"
 library(tidymodels)
 load("cls_data.RData")
 
@@ -252,10 +282,11 @@ p
 
 ::::
 
-## Initial fit
+## Basic fit
 
 ```{r}
 #| label: init-mlp
+#| code-line-numbers: "|1|2|4-5|6|7|8-9|10-11|"
 library(brulee)
 set.seed(7826)
 init_mlp <- brulee_mlp(
@@ -328,6 +359,8 @@ p +
   )
 ```
 
+The segmented, non-smooth class boundary is a result of ReLU activation. 
+
 :::
 
 ::: {.column width="50%"}
@@ -351,28 +384,94 @@ p +
 
 ::::
 
+
+## Three layer fit
+
+```{r}
+#| label: three-layer-mlp
+#| code-line-numbers: "|6-7|"
+library(brulee)
+set.seed(7826)
+three_mlp <- brulee_mlp(
+  class ~ A + B,          
+  data = cls_tr,
+  hidden_units = c(6, 2, 6),
+  activation = c("relu", "relu", "tanh"),
+  learn_rate = 0.1,
+  epochs = 100,
+  stop_iter = 5,          
+  batch_size = 32,
+  method = "SGD"
+)
+```
+
+## ResNet Fit
+
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+```{r}
+#| label: three-loss
+#| fig-align: center
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "100%"
+
+autoplot(three_mlp)
+```
+
+:::
+
+::: {.column width="50%"}
+```{r}
+#| label: three-plot
+#| echo: false
+#| fig-align: center
+#| fig-width: 5
+#| fig-height: 5
+#| out-width: "100%"
+grid_three <- augment(three_mlp, new_data = cls_grid) 
+
+p + 
+  geom_contour(
+    data = grid_three,
+    aes(z = .pred_red),
+    breaks = 1 / 2,
+    col = "black",
+    linewidth = 1
+  )
+```
+:::
+
+::::
+
 ## Tuning with tidymodels
 
 ```{r}
 #| label: ml-tune
+#| code-line-numbers: "|1-2|4-6|8|13|15|"
 #| eval: false
-set.seed(826)
+set.seed(826)                # Create resamples of the training set 
 cls_rs <- vfold_cv(cls_tr)
 
-mlp_spec <- 
+mlp_spec <-                  # Optimize some parameters
   mlp(mode = "classification", hidden_units = tune(), epochs = 100) |> 
   set_engine("brulee")
 
-mirai::daemons(10)
+mirai::daemons(10)           # For parallel processing
 set.seed(658)
 mlp_res <- 
   mlp_spec |> 
   tune_grid(
-    class ~ A + B,
+    class ~ A + B,           # Could be x/y, or a recipe. 
     resamples = cls_rs,
-    grid = 25
+    grid = 25                # Specify a grid or how many candidates to test
   )
 ```
+
+We can tag any number of parameters for optimization via `tune()`. 
 
 # Modern archeticures {background-color="#D04E59FF"}
 
@@ -430,6 +529,10 @@ $$
 
 ::::
 
+<br>
+
+The hidden units $f_j(\boldsymbol{H}_{j-1})$ estimate the residual of $\boldsymbol{H}_{j-1} - \boldsymbol{H}_{j}$
+
 ## About GPUs
 
 As model and/or data sizes increase, you need a GPU for computation. 
@@ -464,11 +567,13 @@ For small-to-medium data sets, it might be faster to use the CPU ¯\\_(ツ)_/¯
 ```{r}
 #| label: resnet-fit
 #| cache: true
+#| code-line-numbers: "|7|13|"
 set.seed(7826)
 resnet_fit <- brulee_resnet(
   class ~ A + B,             
   data = cls_tr,
-  hidden_units = c(6, 2, 6), # multiple layers
+  hidden_units = c(6, 2, 6), 
+  activation = c("relu", "relu", "tanh"),
   residual_at = 1:2,         # residual after these layers
   learn_rate = 0.01,
   epochs = 100,
@@ -527,18 +632,18 @@ p +
 
 ::::
 
-## CPU versus GPU (3 runs each)
+## CPU versus GPU (3 runs each, same seeds)
 
 :::: {.columns}
 
-::: {.column width="80%"}
+::: {.column width="65%"}
 ```{r}
 #| label: devices
 #| echo: false
 #| fig-align: center
 #| fig-width: 7
 #| fig-height: 5
-#| out-width: "80%"
+#| out-width: "100%"
 load("losses.RData")
 
 means <- 
@@ -559,18 +664,18 @@ losses |>
 ```
 :::
 
-::: {.column width="20%"}
+::: {.column width="35%"}
 <br> 
 
 
 Time per epoch _for this data set_: 
 
-- `r signif(means$mean[1], 2)` for CPU 
-- `r signif(means$mean[2], 2)` for GPU
+- `r signif(means$mean[1], 2)`s for CPU 
+- `r signif(means$mean[2], 2)`s for GPU
 
 <br> 
 
-I set the R and torch seeds each iteration. 
+For larger models/data, the GPU is faster and much more memory efficient.
 :::
 
 ::::
@@ -627,6 +732,7 @@ SAINT is a deep learning model that alternates between column and row attention.
 ```{r}
 #| label: saint-fit
 #| cache: true
+#| code-line-numbers: "|6-11|16"
 set.seed(7826)
 saint_fit <- 
   brulee_saint(
@@ -695,6 +801,15 @@ p +
 
 ::::
 
+## SAINT Model Architecture
+
+```{r}
+#| label: saint-summary
+#| cache: true
+nrow(cls_tr)
+summary(saint_fit)
+```
+
 # Foundational Models {background-color="#70B7E1FF"}
 
 ## Foundational models
@@ -737,7 +852,7 @@ An example SCM.
 
 - Latent variables ($Z_j$) comprise a multivaraite distribution and these create our _obsedrved columns_. 
 
-This process is done XX,000,000 times during training. 
+This process is done XXX,000,000 times during training. 
 :::
 
 ::: {.column width="50%"}
@@ -779,7 +894,20 @@ More are popping up all the time.
 
 Original implementations are in Python. 
 
-We'll focus here on TabICL since TabPFN requires a license key. 
+We'll focus here on TabICL for now.
+
+## TabPFN
+
+This is most likely the superior foundational model. 
+
+The implementation is in Python and there are some challenges
+
+- Requires a license key. 
+- The are OpenMP issues where Python can cause segfaults in R. 
+- `r pkg(reticulate)` often updates the Python packages and model weights.
+- Prior Labs update this model very frequently. 
+
+We're scoping out the complexity of making a native R(torch) implementation of the TabPFN  prediction code. This would be a much better R experience but has high upkeep costs. 
 
 ## TabICL "fit"
 
@@ -800,6 +928,9 @@ icl_fit <-
   ) # That's it!
 ```
 
+<br>
+
+The `r pkg(tabpfn)` package has the same syntax. 
 :::
 
 ::: {.column width="50%"}
@@ -828,6 +959,7 @@ p +
 
 ::::
 
+
 ## How much data before ICL kicks in? 
 
 ```{r}
@@ -848,16 +980,17 @@ icl_uptake |>
   labs(x = "Training Set Size", y = "Out-of-Sample Performance")
 ```
 
+## Resistance to Extra Features
 
-## Notes on foundational models
 
-- They appear to be highly resistant to non-informative predictors. 
-- Regression models can also make quantile predictions. 
-- The default models use ensembles of 8 different estimators
-  - The model noise is low, and the ensemble does not buy much. 
-- TabPFN has a very rapid development cycle. Improvements come out every few months. 
-- There are foundational models specific to time series forecasting.
-  - TabICL has one and Amazon created chronos2 (also avalable in `r pkg(brulee)`)
+```{r}
+#| label: noise
+#| echo: false
+#| fig-align: center
+#| out-width: "70%"
+
+knitr::include_graphics("images/irrelevant-predictors.svg")
+```
 
 ## TabICL test results
 
@@ -898,9 +1031,20 @@ cls_te |>
     linewidth = 1
   )
 ```
-## References
 
-**General**
+
+## Notes on foundational models
+
+- They appear to be highly resistant to non-informative predictors. 
+- Regression models can also make quantile predictions. 
+- The default models use ensembles of 8 different estimators
+  - The model noise is low, and the ensemble does not buy much. 
+- TabPFN has a very rapid development cycle. Improvements come out every few months. 
+- There are foundational models specific to time series forecasting.
+  - TabICL has one and Amazon created chronos2 (also avalable in `r pkg(brulee)`)
+
+## References (General)
+
 
 - Vaswani, A, N Shazeer, N Parmar, J Uszkoreit, L Jones, A Gomez, Ł Kaiser, and I Polosukhin. 2017. "[Attention Is All You Need](https://proceedings.neurips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html)." Advances in Neural Information Processing Systems 30.
 
@@ -909,29 +1053,25 @@ cls_te |>
 - Shwartz-Ziv, R, and A Armon. 2022. "[Tabular Data: Deep Learning Is Not All You Need](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Tabular+data+Deep+learning+is+not+all+you+need&as_ylo=2022&as_yhi=2022&btnG=)." Information Fusion 81: 84–90.
 
 
-## References
+## References (Resnet and SAINT)
 
-**ResNet**
 
 - He, K, X Zhang, S Ren, and J Sun. 2016. "[Deep Residual Learning for Image Recognition](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Deep+residual+learning+for+image+recognition&as_ylo=2016&as_yhi=2016&btnG=)." In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 770–78.
 
 - Gorishniy, Y, I Rubachev, V Khrulkov, and A Babenko. 2021. "[Revisiting Deep Learning Models for Tabular Data](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Revisiting+deep+learning+models+for+tabular+data&as_ylo=2021&as_yhi=2021&btnG=)." Advances in Neural Information Processing Systems 34: 18932–43.  (see Eq 2)
 
-**SAINT**: 
+<hr>
 
 - Somepalli, G, M Goldblum, A Schwarzschild, B Bruss, and T Goldstein. 2021. "[Saint: Improved Neural Networks for Tabular Data via Row Attention and Contrastive Pre-Training](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+Saint+Improved+neural+networks+for+tabular+data+via+row+attention+and+contrastive+pre+training&as_ylo=2021&as_yhi=2021&btnG=)." arXiv Preprint arXiv:2106.01342.
 
-## References
+## References (TabICL)
 
-**TabICL**: 
 
 - Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2025. "[TabICL: A Tabular Foundation Model for in-Context Learning on Large Data](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabICL+A+tabular+foundation+model+for+in+context+learning+on+large+data&as_ylo=2025&as_yhi=2025&btnG=)." arXiv Preprint arXiv:2502.05564.
 
 - Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2026. "[TabICLv2: A Better, Faster, Scalable, and Open Tabular Foundation Model](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabICLv2+A+better+faster+scalable+and+open+tabular+foundation+model&as_ylo=2026&as_yhi=2026&btnG=)." arXiv Preprint arXiv:2602.11139.
 
-## References
-
-**TabPFN**: 
+## References (TabPFN)
 
 - Müller, S, N Hollmann, S Arango, J Grabocka, and F Hutter. 2021. "[Transformers Can Do Bayesian Inference](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Transformers+can+do+bayesian+inference&as_ylo=2021&as_yhi=2021&btnG=)." arXiv Preprint arXiv:2112.10510.
 
@@ -939,8 +1079,10 @@ cls_te |>
 
 - Hollmann, N, S Müller, L Purucker, A Krishnakumar, M Körfer, S Hoo, R Schirrmeister, and F Hutter. 2025. "[Accurate Predictions on Small Data with a Tabular Foundation Model](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=Accurate+predictions+on+small+data+with+a+tabular+foundation+model&as_ylo=2025&as_yhi=2025&btnG=)." Nature 637 (8045): 319–26.
 
+## References (TabPFN)
+
 - Grinsztajn, L, K Flöge, O Key, F Birkel, P Jund, B Roof, M Manium, et al. 2026. "[TabPFN-3: Technical Report](https://scholar.google.com/scholar?hl=en&as_sdt=0%2C7&q=+TabPFN+3+Technical+Report&as_ylo=2026&as_yhi=2026&btnG=)." arXiv Preprint arXiv:2605.13986.
 
-
+- Jäger, Benjamin, Nick Erickson, Léo Grinsztajn, Felix Birkel, Klemens Flöge, Oscar Key, Kürşat Kaya et al. "[TabPFN-3.5: Technical Report](https://storage.googleapis.com/prior-labs-tabpfn-public/reports/tabpfn-v3.5-report.pdf)." arXiv preprint arXiv:2609.17895 (2026).
 
 # Thanks for listening! {background-color="#FAE093FF"}

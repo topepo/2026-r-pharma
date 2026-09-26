@@ -289,10 +289,12 @@ Max Kuhn
 </div>
 </div><div class="column" style="width:30%;">
 <p>Connections often use nonlinear <a href="https://aml4td.org/chapters/cls-neural-nets.html#sec-nnet-activation"><em>activation functions</em></a> for <span class="math inline">\sigma(\cdot)</span>.</p>
+<p><br></p>
+<p>The hidden unit variables (and others) are commonly called <a href="https://vickiboykis.com/what_are_embeddings/">embeddings</a>.</p>
 </div></div>
 </section>
-<section id="activation-functions" class="slide level2">
-<h2>Activation Functions</h2>
+<section id="activation-functions-sigma" class="slide level2">
+<h2>Activation Functions (<span class="math inline">\sigma</span>)</h2>
 <p><br></p>
 <p>There are many nonlinear functions. Historically, a logistic/sigmoid was popular, but Restricted Linear Units (ReLU) and its variants are mostly used.</p>
 <p><br></p>
@@ -300,6 +302,24 @@ Max Kuhn
 <img data-src="figures/act-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:100.0%"></section>
 <section id="multilayer-perceptrons-1" class="slide level2">
 <h2>Multilayer perceptrons</h2>
+<p><br></p>
+<div class="columns">
+<div class="column" style="width:70%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="images/nnet_end.svg" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:30%;">
+<p>Multiple terminal columns for classification and a single column for regression.</p>
+</div></div>
+</section>
+<section id="multilayer-perceptrons-for-tabular-data" class="slide level2">
+<h2>Multilayer perceptrons for tabular data</h2>
 <ul>
 <li>High maintenance
 <ul>
@@ -317,7 +337,7 @@ Max Kuhn
 <section id="simple-example" class="slide level2">
 <h2>Simple example</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="" aria-label="1"></a><span class="fu">library</span>(tidymodels)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" data-code-line-numbers="|1|2|4-6|10|11|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="" aria-label="1"></a><span class="fu">library</span>(tidymodels)</span>
 <span id="cb4-2"><a href="" aria-label="2"></a><span class="fu">load</span>(<span class="st">"cls_data.RData"</span>)</span>
 <span id="cb4-3"><a href="" aria-label="3"></a></span>
 <span id="cb4-4"><a href="" aria-label="4"></a><span class="fu">set.seed</span>(<span class="dv">987</span>)</span>
@@ -360,10 +380,10 @@ Max Kuhn
 </div>
 </div></div>
 </section>
-<section id="initial-fit" class="slide level2">
-<h2>Initial fit</h2>
+<section id="basic-fit" class="slide level2">
+<h2>Basic fit</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="" aria-label="1"></a><span class="fu">library</span>(brulee)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" data-code-line-numbers="|1|2|4-5|6|7|8-9|10-11|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="" aria-label="1"></a><span class="fu">library</span>(brulee)</span>
 <span id="cb6-2"><a href="" aria-label="2"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
 <span id="cb6-3"><a href="" aria-label="3"></a>init_mlp <span class="ot">&lt;-</span> <span class="fu">brulee_mlp</span>(</span>
 <span id="cb6-4"><a href="" aria-label="4"></a>  class <span class="sc">~</span> A <span class="sc">+</span> B,          <span class="co"># Can also use a recipe or x/y format for data</span></span>
@@ -437,6 +457,7 @@ Max Kuhn
 <span id="cb10-7"><a href="" aria-label="7"></a>    <span class="at">linewidth =</span> <span class="dv">1</span></span>
 <span id="cb10-8"><a href="" aria-label="8"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>The segmented, non-smooth class boundary is a result of ReLU activation.</p>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -449,26 +470,71 @@ Max Kuhn
 </div>
 </div></div>
 </section>
+<section id="three-layer-fit" class="slide level2">
+<h2>Three layer fit</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11" data-code-line-numbers="|6-7|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="" aria-label="1"></a><span class="fu">library</span>(brulee)</span>
+<span id="cb11-2"><a href="" aria-label="2"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
+<span id="cb11-3"><a href="" aria-label="3"></a>three_mlp <span class="ot">&lt;-</span> <span class="fu">brulee_mlp</span>(</span>
+<span id="cb11-4"><a href="" aria-label="4"></a>  class <span class="sc">~</span> A <span class="sc">+</span> B,          </span>
+<span id="cb11-5"><a href="" aria-label="5"></a>  <span class="at">data =</span> cls_tr,</span>
+<span id="cb11-6"><a href="" aria-label="6"></a>  <span class="at">hidden_units =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">6</span>),</span>
+<span id="cb11-7"><a href="" aria-label="7"></a>  <span class="at">activation =</span> <span class="fu">c</span>(<span class="st">"relu"</span>, <span class="st">"relu"</span>, <span class="st">"tanh"</span>),</span>
+<span id="cb11-8"><a href="" aria-label="8"></a>  <span class="at">learn_rate =</span> <span class="fl">0.1</span>,</span>
+<span id="cb11-9"><a href="" aria-label="9"></a>  <span class="at">epochs =</span> <span class="dv">100</span>,</span>
+<span id="cb11-10"><a href="" aria-label="10"></a>  <span class="at">stop_iter =</span> <span class="dv">5</span>,          </span>
+<span id="cb11-11"><a href="" aria-label="11"></a>  <span class="at">batch_size =</span> <span class="dv">32</span>,</span>
+<span id="cb11-12"><a href="" aria-label="12"></a>  <span class="at">method =</span> <span class="st">"SGD"</span></span>
+<span id="cb11-13"><a href="" aria-label="13"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="resnet-fit" class="slide level2">
+<h2>ResNet Fit</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="" aria-label="1"></a><span class="fu">autoplot</span>(three_mlp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/three-loss-1.svg" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:50%;">
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="figures/three-plot-1.svg" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</div></div>
+</section>
 <section id="tuning-with-tidymodels" class="slide level2">
 <h2>Tuning with tidymodels</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">826</span>)</span>
-<span id="cb11-2"><a href="" aria-label="2"></a>cls_rs <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cls_tr)</span>
-<span id="cb11-3"><a href="" aria-label="3"></a></span>
-<span id="cb11-4"><a href="" aria-label="4"></a>mlp_spec <span class="ot">&lt;-</span> </span>
-<span id="cb11-5"><a href="" aria-label="5"></a>  <span class="fu">mlp</span>(<span class="at">mode =</span> <span class="st">"classification"</span>, <span class="at">hidden_units =</span> <span class="fu">tune</span>(), <span class="at">epochs =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb11-6"><a href="" aria-label="6"></a>  <span class="fu">set_engine</span>(<span class="st">"brulee"</span>)</span>
-<span id="cb11-7"><a href="" aria-label="7"></a></span>
-<span id="cb11-8"><a href="" aria-label="8"></a>mirai<span class="sc">::</span><span class="fu">daemons</span>(<span class="dv">10</span>)</span>
-<span id="cb11-9"><a href="" aria-label="9"></a><span class="fu">set.seed</span>(<span class="dv">658</span>)</span>
-<span id="cb11-10"><a href="" aria-label="10"></a>mlp_res <span class="ot">&lt;-</span> </span>
-<span id="cb11-11"><a href="" aria-label="11"></a>  mlp_spec <span class="sc">|&gt;</span> </span>
-<span id="cb11-12"><a href="" aria-label="12"></a>  <span class="fu">tune_grid</span>(</span>
-<span id="cb11-13"><a href="" aria-label="13"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B,</span>
-<span id="cb11-14"><a href="" aria-label="14"></a>    <span class="at">resamples =</span> cls_rs,</span>
-<span id="cb11-15"><a href="" aria-label="15"></a>    <span class="at">grid =</span> <span class="dv">25</span></span>
-<span id="cb11-16"><a href="" aria-label="16"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" data-code-line-numbers="|1-2|4-6|8|13|15|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">826</span>)                <span class="co"># Create resamples of the training set </span></span>
+<span id="cb13-2"><a href="" aria-label="2"></a>cls_rs <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(cls_tr)</span>
+<span id="cb13-3"><a href="" aria-label="3"></a></span>
+<span id="cb13-4"><a href="" aria-label="4"></a>mlp_spec <span class="ot">&lt;-</span>                  <span class="co"># Optimize some parameters</span></span>
+<span id="cb13-5"><a href="" aria-label="5"></a>  <span class="fu">mlp</span>(<span class="at">mode =</span> <span class="st">"classification"</span>, <span class="at">hidden_units =</span> <span class="fu">tune</span>(), <span class="at">epochs =</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-6"><a href="" aria-label="6"></a>  <span class="fu">set_engine</span>(<span class="st">"brulee"</span>)</span>
+<span id="cb13-7"><a href="" aria-label="7"></a></span>
+<span id="cb13-8"><a href="" aria-label="8"></a>mirai<span class="sc">::</span><span class="fu">daemons</span>(<span class="dv">10</span>)           <span class="co"># For parallel processing</span></span>
+<span id="cb13-9"><a href="" aria-label="9"></a><span class="fu">set.seed</span>(<span class="dv">658</span>)</span>
+<span id="cb13-10"><a href="" aria-label="10"></a>mlp_res <span class="ot">&lt;-</span> </span>
+<span id="cb13-11"><a href="" aria-label="11"></a>  mlp_spec <span class="sc">|&gt;</span> </span>
+<span id="cb13-12"><a href="" aria-label="12"></a>  <span class="fu">tune_grid</span>(</span>
+<span id="cb13-13"><a href="" aria-label="13"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B,           <span class="co"># Could be x/y, or a recipe. </span></span>
+<span id="cb13-14"><a href="" aria-label="14"></a>    <span class="at">resamples =</span> cls_rs,</span>
+<span id="cb13-15"><a href="" aria-label="15"></a>    <span class="at">grid =</span> <span class="dv">25</span>                <span class="co"># Specify a grid or how many candidates to test</span></span>
+<span id="cb13-16"><a href="" aria-label="16"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>We can tag any number of parameters for optimization via <code>tune()</code>.</p>
 </section>
 <section>
 <section id="modern-archeticures" class="title-slide slide level1 center" data-background-color="#D04E59FF">
@@ -516,6 +582,8 @@ Max Kuhn
 \end{alignedat}}^{\text{Residual Connections}}
 </span></p>
 </div></div>
+<p><br></p>
+<p>The hidden units <span class="math inline">f_j(\boldsymbol{H}_{j-1})</span> estimate the residual of <span class="math inline">\boldsymbol{H}_{j-1} - \boldsymbol{H}_{j}</span></p>
 </section>
 <section id="about-gpus" class="slide level2">
 <h2>About GPUs</h2>
@@ -538,32 +606,33 @@ Max Kuhn
 <p><br></p>
 <p>For small-to-medium data sets, it might be faster to use the CPU ¯\<em>(ツ)</em>/¯</p>
 </section>
-<section id="resnet-fit" class="slide level2">
+<section id="resnet-fit-1" class="slide level2">
 <h2>ResNet Fit</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
-<span id="cb12-2"><a href="" aria-label="2"></a>resnet_fit <span class="ot">&lt;-</span> <span class="fu">brulee_resnet</span>(</span>
-<span id="cb12-3"><a href="" aria-label="3"></a>  class <span class="sc">~</span> A <span class="sc">+</span> B,             </span>
-<span id="cb12-4"><a href="" aria-label="4"></a>  <span class="at">data =</span> cls_tr,</span>
-<span id="cb12-5"><a href="" aria-label="5"></a>  <span class="at">hidden_units =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">6</span>), <span class="co"># multiple layers</span></span>
-<span id="cb12-6"><a href="" aria-label="6"></a>  <span class="at">residual_at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,         <span class="co"># residual after these layers</span></span>
-<span id="cb12-7"><a href="" aria-label="7"></a>  <span class="at">learn_rate =</span> <span class="fl">0.01</span>,</span>
-<span id="cb12-8"><a href="" aria-label="8"></a>  <span class="at">epochs =</span> <span class="dv">100</span>,</span>
-<span id="cb12-9"><a href="" aria-label="9"></a>  <span class="at">stop_iter =</span> <span class="dv">5</span>,  </span>
-<span id="cb12-10"><a href="" aria-label="10"></a>  <span class="at">batch_size =</span> <span class="dv">32</span>,</span>
-<span id="cb12-11"><a href="" aria-label="11"></a>  <span class="at">method =</span> <span class="st">"SGD"</span>,</span>
-<span id="cb12-12"><a href="" aria-label="12"></a>  <span class="at">device =</span> <span class="st">"cpu"</span>             <span class="co"># default; results are different w/gpu, see below</span></span>
-<span id="cb12-13"><a href="" aria-label="13"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-code-line-numbers="|7|13|"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
+<span id="cb14-2"><a href="" aria-label="2"></a>resnet_fit <span class="ot">&lt;-</span> <span class="fu">brulee_resnet</span>(</span>
+<span id="cb14-3"><a href="" aria-label="3"></a>  class <span class="sc">~</span> A <span class="sc">+</span> B,             </span>
+<span id="cb14-4"><a href="" aria-label="4"></a>  <span class="at">data =</span> cls_tr,</span>
+<span id="cb14-5"><a href="" aria-label="5"></a>  <span class="at">hidden_units =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">2</span>, <span class="dv">6</span>), </span>
+<span id="cb14-6"><a href="" aria-label="6"></a>  <span class="at">activation =</span> <span class="fu">c</span>(<span class="st">"relu"</span>, <span class="st">"relu"</span>, <span class="st">"tanh"</span>),</span>
+<span id="cb14-7"><a href="" aria-label="7"></a>  <span class="at">residual_at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>,         <span class="co"># residual after these layers</span></span>
+<span id="cb14-8"><a href="" aria-label="8"></a>  <span class="at">learn_rate =</span> <span class="fl">0.01</span>,</span>
+<span id="cb14-9"><a href="" aria-label="9"></a>  <span class="at">epochs =</span> <span class="dv">100</span>,</span>
+<span id="cb14-10"><a href="" aria-label="10"></a>  <span class="at">stop_iter =</span> <span class="dv">5</span>,  </span>
+<span id="cb14-11"><a href="" aria-label="11"></a>  <span class="at">batch_size =</span> <span class="dv">32</span>,</span>
+<span id="cb14-12"><a href="" aria-label="12"></a>  <span class="at">method =</span> <span class="st">"SGD"</span>,</span>
+<span id="cb14-13"><a href="" aria-label="13"></a>  <span class="at">device =</span> <span class="st">"cpu"</span>             <span class="co"># default; results are different w/gpu, see below</span></span>
+<span id="cb14-14"><a href="" aria-label="14"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><br></p>
 <p>The <span class="pkg">tabby</span> package enables tuning via <code>tabular_resnet()</code></p>
 </section>
-<section id="resnet-fit-1" class="slide level2">
+<section id="resnet-fit-2" class="slide level2">
 <h2>ResNet Fit</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="" aria-label="1"></a><span class="fu">autoplot</span>(resnet_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-label="1"></a><span class="fu">autoplot</span>(resnet_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -584,28 +653,28 @@ Max Kuhn
 </div>
 </div></div>
 </section>
-<section id="cpu-versus-gpu-3-runs-each" class="slide level2">
-<h2>CPU versus GPU (3 runs each)</h2>
+<section id="cpu-versus-gpu-3-runs-each-same-seeds" class="slide level2">
+<h2>CPU versus GPU (3 runs each, same seeds)</h2>
 <div class="columns">
-<div class="column" style="width:80%;">
+<div class="column" style="width:65%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
-<p><img data-src="figures/devices-1.svg" class="quarto-figure quarto-figure-center" style="width:80.0%"></p>
+<p><img data-src="figures/devices-1.svg" class="quarto-figure quarto-figure-center" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
-</div><div class="column" style="width:20%;">
+</div><div class="column" style="width:35%;">
 <p><br></p>
 <p>Time per epoch <em>for this data set</em>:</p>
 <ul>
-<li>0.36 for CPU</li>
-<li>1.2 for GPU</li>
+<li>0.36s for CPU</li>
+<li>1.2s for GPU</li>
 </ul>
 <p><br></p>
-<p>I set the R and torch seeds each iteration.</p>
+<p>For larger models/data, the GPU is faster and much more memory efficient.</p>
 </div></div>
 </section>
 <section id="global-and-local-models-in-drug-discovery" class="slide level2">
@@ -649,23 +718,23 @@ Max Kuhn
 <section id="saint-fit" class="slide level2">
 <h2>SAINT Fit</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
-<span id="cb14-2"><a href="" aria-label="2"></a>saint_fit <span class="ot">&lt;-</span> </span>
-<span id="cb14-3"><a href="" aria-label="3"></a>  <span class="fu">brulee_saint</span>(</span>
-<span id="cb14-4"><a href="" aria-label="4"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B,</span>
-<span id="cb14-5"><a href="" aria-label="5"></a>    <span class="at">data =</span> cls_tr, </span>
-<span id="cb14-6"><a href="" aria-label="6"></a>    <span class="at">num_embedding =</span> <span class="dv">20</span>,    <span class="co"># Ok, I admit that I used the tabby and tune packages</span></span>
-<span id="cb14-7"><a href="" aria-label="7"></a>    <span class="at">hidden_units =</span> <span class="dv">20</span>,     <span class="co"># to find this combination of parameters. It took a</span></span>
-<span id="cb14-8"><a href="" aria-label="8"></a>    <span class="at">num_attn_heads =</span> <span class="dv">8</span>,    <span class="co"># long time to run. </span></span>
-<span id="cb14-9"><a href="" aria-label="9"></a>    <span class="at">num_attn_blocks =</span> <span class="dv">4</span>,</span>
-<span id="cb14-10"><a href="" aria-label="10"></a>    <span class="at">learn_rate =</span> <span class="fl">0.005</span>,    <span class="co"># learn_rate and dropout for hidden units were </span></span>
-<span id="cb14-11"><a href="" aria-label="11"></a>    <span class="at">dropout_hidden =</span> <span class="dv">0</span>,    <span class="co"># unusually low for these data. </span></span>
-<span id="cb14-12"><a href="" aria-label="12"></a>    <span class="at">epochs =</span> <span class="dv">100</span>,</span>
-<span id="cb14-13"><a href="" aria-label="13"></a>    <span class="at">stop_iter =</span> <span class="dv">10</span>,  </span>
-<span id="cb14-14"><a href="" aria-label="14"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
-<span id="cb14-15"><a href="" aria-label="15"></a>    <span class="at">method =</span> <span class="st">"SGD"</span>,</span>
-<span id="cb14-16"><a href="" aria-label="16"></a>    <span class="at">device =</span> <span class="st">"mps"</span></span>
-<span id="cb14-17"><a href="" aria-label="17"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16" data-code-line-numbers="|6-11|16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="" aria-label="1"></a><span class="fu">set.seed</span>(<span class="dv">7826</span>)</span>
+<span id="cb16-2"><a href="" aria-label="2"></a>saint_fit <span class="ot">&lt;-</span> </span>
+<span id="cb16-3"><a href="" aria-label="3"></a>  <span class="fu">brulee_saint</span>(</span>
+<span id="cb16-4"><a href="" aria-label="4"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B,</span>
+<span id="cb16-5"><a href="" aria-label="5"></a>    <span class="at">data =</span> cls_tr, </span>
+<span id="cb16-6"><a href="" aria-label="6"></a>    <span class="at">num_embedding =</span> <span class="dv">20</span>,    <span class="co"># Ok, I admit that I used the tabby and tune packages</span></span>
+<span id="cb16-7"><a href="" aria-label="7"></a>    <span class="at">hidden_units =</span> <span class="dv">20</span>,     <span class="co"># to find this combination of parameters. It took a</span></span>
+<span id="cb16-8"><a href="" aria-label="8"></a>    <span class="at">num_attn_heads =</span> <span class="dv">8</span>,    <span class="co"># long time to run. </span></span>
+<span id="cb16-9"><a href="" aria-label="9"></a>    <span class="at">num_attn_blocks =</span> <span class="dv">4</span>,</span>
+<span id="cb16-10"><a href="" aria-label="10"></a>    <span class="at">learn_rate =</span> <span class="fl">0.005</span>,    <span class="co"># learn_rate and dropout for hidden units were </span></span>
+<span id="cb16-11"><a href="" aria-label="11"></a>    <span class="at">dropout_hidden =</span> <span class="dv">0</span>,    <span class="co"># unusually low for these data. </span></span>
+<span id="cb16-12"><a href="" aria-label="12"></a>    <span class="at">epochs =</span> <span class="dv">100</span>,</span>
+<span id="cb16-13"><a href="" aria-label="13"></a>    <span class="at">stop_iter =</span> <span class="dv">10</span>,  </span>
+<span id="cb16-14"><a href="" aria-label="14"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb16-15"><a href="" aria-label="15"></a>    <span class="at">method =</span> <span class="st">"SGD"</span>,</span>
+<span id="cb16-16"><a href="" aria-label="16"></a>    <span class="at">device =</span> <span class="st">"mps"</span></span>
+<span id="cb16-17"><a href="" aria-label="17"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><br></p>
 <p>The <span class="pkg">tabby</span> package enables tuning via <code>tabular_saint()</code></p>
@@ -675,7 +744,7 @@ Max Kuhn
 <div class="columns">
 <div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-label="1"></a><span class="fu">autoplot</span>(saint_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="" aria-label="1"></a><span class="fu">autoplot</span>(saint_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -695,6 +764,77 @@ Max Kuhn
 </div>
 </div>
 </div></div>
+</section>
+<section id="saint-model-architecture" class="slide level2">
+<h2>SAINT Model Architecture</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="" aria-label="1"></a><span class="fu">nrow</span>(cls_tr)</span>
+<span id="cb18-2"><a href="" aria-label="2"></a><span class="co">#&gt; [1] 750</span></span>
+<span id="cb18-3"><a href="" aria-label="3"></a><span class="fu">summary</span>(saint_fit)</span>
+<span id="cb18-4"><a href="" aria-label="4"></a><span class="co">#&gt; SAINT architecture</span></span>
+<span id="cb18-5"><a href="" aria-label="5"></a><span class="co">#&gt; inputs: 2 (0 categorical, 2 numeric) | output dim: 2</span></span>
+<span id="cb18-6"><a href="" aria-label="6"></a><span class="co">#&gt; attention: both | embedding dim: 20 | target token: TRUE</span></span>
+<span id="cb18-7"><a href="" aria-label="7"></a><span class="co">#&gt; </span></span>
+<span id="cb18-8"><a href="" aria-label="8"></a><span class="co">#&gt; Embedding layer</span></span>
+<span id="cb18-9"><a href="" aria-label="9"></a><span class="co">#&gt;   Target token (1 x 20)                       20 params</span></span>
+<span id="cb18-10"><a href="" aria-label="10"></a><span class="co">#&gt;   2 x MLP(1 -&gt; 100 -&gt; 20)                  4,440 params</span></span>
+<span id="cb18-11"><a href="" aria-label="11"></a><span class="co">#&gt; </span></span>
+<span id="cb18-12"><a href="" aria-label="12"></a><span class="co">#&gt; Transformer backbone (4 blocks, column + row attention)</span></span>
+<span id="cb18-13"><a href="" aria-label="13"></a><span class="co">#&gt;   Block 1:</span></span>
+<span id="cb18-14"><a href="" aria-label="14"></a><span class="co">#&gt;     Column attention:</span></span>
+<span id="cb18-15"><a href="" aria-label="15"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-16"><a href="" aria-label="16"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
+<span id="cb18-17"><a href="" aria-label="17"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-18"><a href="" aria-label="18"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-19"><a href="" aria-label="19"></a><span class="co">#&gt;     Row attention:</span></span>
+<span id="cb18-20"><a href="" aria-label="20"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-21"><a href="" aria-label="21"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
+<span id="cb18-22"><a href="" aria-label="22"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-23"><a href="" aria-label="23"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-24"><a href="" aria-label="24"></a><span class="co">#&gt;   Block 2:</span></span>
+<span id="cb18-25"><a href="" aria-label="25"></a><span class="co">#&gt;     Column attention:</span></span>
+<span id="cb18-26"><a href="" aria-label="26"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-27"><a href="" aria-label="27"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
+<span id="cb18-28"><a href="" aria-label="28"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-29"><a href="" aria-label="29"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-30"><a href="" aria-label="30"></a><span class="co">#&gt;     Row attention:</span></span>
+<span id="cb18-31"><a href="" aria-label="31"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-32"><a href="" aria-label="32"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
+<span id="cb18-33"><a href="" aria-label="33"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-34"><a href="" aria-label="34"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-35"><a href="" aria-label="35"></a><span class="co">#&gt;   Block 3:</span></span>
+<span id="cb18-36"><a href="" aria-label="36"></a><span class="co">#&gt;     Column attention:</span></span>
+<span id="cb18-37"><a href="" aria-label="37"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-38"><a href="" aria-label="38"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
+<span id="cb18-39"><a href="" aria-label="39"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-40"><a href="" aria-label="40"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-41"><a href="" aria-label="41"></a><span class="co">#&gt;     Row attention:</span></span>
+<span id="cb18-42"><a href="" aria-label="42"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-43"><a href="" aria-label="43"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
+<span id="cb18-44"><a href="" aria-label="44"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-45"><a href="" aria-label="45"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-46"><a href="" aria-label="46"></a><span class="co">#&gt;   Block 4:</span></span>
+<span id="cb18-47"><a href="" aria-label="47"></a><span class="co">#&gt;     Column attention:</span></span>
+<span id="cb18-48"><a href="" aria-label="48"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-49"><a href="" aria-label="49"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
+<span id="cb18-50"><a href="" aria-label="50"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
+<span id="cb18-51"><a href="" aria-label="51"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-52"><a href="" aria-label="52"></a><span class="co">#&gt;     Row attention:</span></span>
+<span id="cb18-53"><a href="" aria-label="53"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-54"><a href="" aria-label="54"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
+<span id="cb18-55"><a href="" aria-label="55"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
+<span id="cb18-56"><a href="" aria-label="56"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-57"><a href="" aria-label="57"></a><span class="co">#&gt; </span></span>
+<span id="cb18-58"><a href="" aria-label="58"></a><span class="co">#&gt; Hidden layers</span></span>
+<span id="cb18-59"><a href="" aria-label="59"></a><span class="co">#&gt;   Linear(20 -&gt; 20)                           420 params</span></span>
+<span id="cb18-60"><a href="" aria-label="60"></a><span class="co">#&gt;   ReLU                                         0 params</span></span>
+<span id="cb18-61"><a href="" aria-label="61"></a><span class="co">#&gt; </span></span>
+<span id="cb18-62"><a href="" aria-label="62"></a><span class="co">#&gt; Output head</span></span>
+<span id="cb18-63"><a href="" aria-label="63"></a><span class="co">#&gt;   Linear(20 -&gt; 2)                             42 params</span></span>
+<span id="cb18-64"><a href="" aria-label="64"></a><span class="co">#&gt;   Softmax                                      0 params</span></span>
+<span id="cb18-65"><a href="" aria-label="65"></a><span class="co">#&gt; </span></span>
+<span id="cb18-66"><a href="" aria-label="66"></a><span class="co">#&gt; Total parameters: 733,882</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section></section>
 <section>
 <section id="foundational-models" class="title-slide slide level1 center" data-background-color="#70B7E1FF">
@@ -730,7 +870,7 @@ Max Kuhn
 <li><p>Each node adds a layer of complexity, nonlinear relationships, transformations, etc.</p></li>
 <li><p>Latent variables (<span class="math inline">Z_j</span>) comprise a multivaraite distribution and these create our <em>obsedrved columns</em>.</p></li>
 </ul>
-<p>This process is done XX,000,000 times during training.</p>
+<p>This process is done XXX,000,000 times during training.</p>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -762,7 +902,19 @@ Max Kuhn
 <li><span class="pkg"><a href="https://cran.r-project.org/package=brulee">brulee</a></span> has an R torch implementation <code>brulee_tab_icl()</code></li>
 </ul>
 <p>Original implementations are in Python.</p>
-<p>We’ll focus here on TabICL since TabPFN requires a license key.</p>
+<p>We’ll focus here on TabICL for now.</p>
+</section>
+<section id="tabpfn" class="slide level2">
+<h2>TabPFN</h2>
+<p>This is most likely the superior foundational model.</p>
+<p>The implementation is in Python and there are some challenges</p>
+<ul>
+<li>Requires a license key.</li>
+<li>The are OpenMP issues where Python can cause segfaults in R.</li>
+<li><span class="pkg"><a href="https://cran.r-project.org/package=reticulate">reticulate</a></span> often updates the Python packages and model weights.</li>
+<li>Prior Labs update this model very frequently.</li>
+</ul>
+<p>We’re scoping out the complexity of making a native R(torch) implementation of the TabPFN prediction code. This would be a much better R experience but has high upkeep costs.</p>
 </section>
 <section id="tabicl-fit" class="slide level2">
 <h2>TabICL “fit”</h2>
@@ -770,12 +922,14 @@ Max Kuhn
 <div class="column" style="width:50%;">
 <p><br></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="" aria-label="1"></a>icl_fit <span class="ot">&lt;-</span> </span>
-<span id="cb16-2"><a href="" aria-label="2"></a>  <span class="fu">brulee_tab_icl</span>(</span>
-<span id="cb16-3"><a href="" aria-label="3"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B, </span>
-<span id="cb16-4"><a href="" aria-label="4"></a>    <span class="at">data =</span> cls_tr</span>
-<span id="cb16-5"><a href="" aria-label="5"></a>  ) <span class="co"># That's it!</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-label="1"></a>icl_fit <span class="ot">&lt;-</span> </span>
+<span id="cb19-2"><a href="" aria-label="2"></a>  <span class="fu">brulee_tab_icl</span>(</span>
+<span id="cb19-3"><a href="" aria-label="3"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B, </span>
+<span id="cb19-4"><a href="" aria-label="4"></a>    <span class="at">data =</span> cls_tr</span>
+<span id="cb19-5"><a href="" aria-label="5"></a>  ) <span class="co"># That's it!</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p><br></p>
+<p>The <span class="pkg"><a href="https://cran.r-project.org/package=tabpfn">tabpfn</a></span> package has the same syntax.</p>
 </div><div class="column" style="width:50%;">
 <div class="cell" data-layout-align="center">
 <div class="cell-output-display">
@@ -792,6 +946,30 @@ Max Kuhn
 <h2>How much data before ICL kicks in?</h2>
 
 <img data-src="figures/icl-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:40.0%"></section>
+<section id="resistance-to-extra-features" class="slide level2">
+<h2>Resistance to Extra Features</h2>
+
+<img data-src="images/irrelevant-predictors.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:70.0%"></section>
+<section id="tabicl-test-results" class="slide level2">
+<h2>TabICL test results</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="" aria-label="1"></a>cls_mtr <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(brier_class, roc_auc, mn_log_loss)</span>
+<span id="cb20-2"><a href="" aria-label="2"></a></span>
+<span id="cb20-3"><a href="" aria-label="3"></a>icl_test_pred <span class="ot">&lt;-</span> <span class="fu">augment</span>(icl_fit, cls_te)</span>
+<span id="cb20-4"><a href="" aria-label="4"></a></span>
+<span id="cb20-5"><a href="" aria-label="5"></a>icl_test_pred <span class="sc">|&gt;</span> <span class="fu">cls_mtr</span>(class, .pred_red)</span>
+<span id="cb20-6"><a href="" aria-label="6"></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
+<span id="cb20-7"><a href="" aria-label="7"></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
+<span id="cb20-8"><a href="" aria-label="8"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
+<span id="cb20-9"><a href="" aria-label="9"></a><span class="co">#&gt; 1 brier_class binary        0.0258</span></span>
+<span id="cb20-10"><a href="" aria-label="10"></a><span class="co">#&gt; 2 roc_auc     binary        0.995 </span></span>
+<span id="cb20-11"><a href="" aria-label="11"></a><span class="co">#&gt; 3 mn_log_loss binary        0.0894</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="tabicl-test-results-1" class="slide level2">
+<h2>TabICL test results</h2>
+
+<img data-src="figures/tabicl-test-plot-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:50.0%"></section>
 <section id="notes-on-foundational-models" class="slide level2">
 <h2>Notes on foundational models</h2>
 <ul>
@@ -808,63 +986,45 @@ Max Kuhn
 </ul></li>
 </ul>
 </section>
-<section id="tabicl-test-results" class="slide level2">
-<h2>TabICL test results</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="" aria-label="1"></a>cls_mtr <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(brier_class, roc_auc, mn_log_loss)</span>
-<span id="cb17-2"><a href="" aria-label="2"></a></span>
-<span id="cb17-3"><a href="" aria-label="3"></a>icl_test_pred <span class="ot">&lt;-</span> <span class="fu">augment</span>(icl_fit, cls_te)</span>
-<span id="cb17-4"><a href="" aria-label="4"></a></span>
-<span id="cb17-5"><a href="" aria-label="5"></a>icl_test_pred <span class="sc">|&gt;</span> <span class="fu">cls_mtr</span>(class, .pred_red)</span>
-<span id="cb17-6"><a href="" aria-label="6"></a><span class="co">#&gt; # A tibble: 3 × 3</span></span>
-<span id="cb17-7"><a href="" aria-label="7"></a><span class="co">#&gt;   .metric     .estimator .estimate</span></span>
-<span id="cb17-8"><a href="" aria-label="8"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span id="cb17-9"><a href="" aria-label="9"></a><span class="co">#&gt; 1 brier_class binary        0.0258</span></span>
-<span id="cb17-10"><a href="" aria-label="10"></a><span class="co">#&gt; 2 roc_auc     binary        0.995 </span></span>
-<span id="cb17-11"><a href="" aria-label="11"></a><span class="co">#&gt; 3 mn_log_loss binary        0.0894</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
-<section id="tabicl-test-results-1" class="slide level2">
-<h2>TabICL test results</h2>
-
-<img data-src="figures/tabicl-test-plot-1.svg" class="quarto-figure quarto-figure-center r-stretch" style="width:50.0%"></section>
-<section id="references" class="slide level2">
-<h2>References</h2>
-<p><strong>General</strong></p>
+<section id="references-general" class="slide level2">
+<h2>References (General)</h2>
 <ul>
 <li><p>Vaswani, A, N Shazeer, N Parmar, J Uszkoreit, L Jones, A Gomez, Ł Kaiser, and I Polosukhin. 2017. “<a href="https://proceedings.neurips.cc/paper_files/paper/2017/hash/3f5ee243547dee91fbd053c1c4a845aa-Abstract.html">Attention Is All You Need</a>.” Advances in Neural Information Processing Systems 30.</p></li>
 <li><p>Gorishniy, Y, I Rubachev, V Khrulkov, and A Babenko. 2021. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Revisiting+deep+learning+models+for+tabular+data&amp;as_ylo=2021&amp;as_yhi=2021&amp;btnG=">Revisiting Deep Learning Models for Tabular Data</a>.” Advances in Neural Information Processing Systems 34: 18932–43.</p></li>
 <li><p>Shwartz-Ziv, R, and A Armon. 2022. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Tabular+data+Deep+learning+is+not+all+you+need&amp;as_ylo=2022&amp;as_yhi=2022&amp;btnG=">Tabular Data: Deep Learning Is Not All You Need</a>.” Information Fusion 81: 84–90.</p></li>
 </ul>
 </section>
-<section id="references-1" class="slide level2">
-<h2>References</h2>
-<p><strong>ResNet</strong></p>
+<section id="references-resnet-and-saint" class="slide level2">
+<h2>References (Resnet and SAINT)</h2>
 <ul>
 <li><p>He, K, X Zhang, S Ren, and J Sun. 2016. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Deep+residual+learning+for+image+recognition&amp;as_ylo=2016&amp;as_yhi=2016&amp;btnG=">Deep Residual Learning for Image Recognition</a>.” In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 770–78.</p></li>
 <li><p>Gorishniy, Y, I Rubachev, V Khrulkov, and A Babenko. 2021. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Revisiting+deep+learning+models+for+tabular+data&amp;as_ylo=2021&amp;as_yhi=2021&amp;btnG=">Revisiting Deep Learning Models for Tabular Data</a>.” Advances in Neural Information Processing Systems 34: 18932–43. (see Eq 2)</p></li>
 </ul>
-<p><strong>SAINT</strong>:</p>
+<hr>
 <ul>
 <li>Somepalli, G, M Goldblum, A Schwarzschild, B Bruss, and T Goldstein. 2021. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=+Saint+Improved+neural+networks+for+tabular+data+via+row+attention+and+contrastive+pre+training&amp;as_ylo=2021&amp;as_yhi=2021&amp;btnG=">Saint: Improved Neural Networks for Tabular Data via Row Attention and Contrastive Pre-Training</a>.” arXiv Preprint arXiv:2106.01342.</li>
 </ul>
 </section>
-<section id="references-2" class="slide level2">
-<h2>References</h2>
-<p><strong>TabICL</strong>:</p>
+<section id="references-tabicl" class="slide level2">
+<h2>References (TabICL)</h2>
 <ul>
 <li><p>Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2025. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=+TabICL+A+tabular+foundation+model+for+in+context+learning+on+large+data&amp;as_ylo=2025&amp;as_yhi=2025&amp;btnG=">TabICL: A Tabular Foundation Model for in-Context Learning on Large Data</a>.” arXiv Preprint arXiv:2502.05564.</p></li>
 <li><p>Qu, J, D Holzmuller, G Varoquaux, and M Morvan. 2026. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=+TabICLv2+A+better+faster+scalable+and+open+tabular+foundation+model&amp;as_ylo=2026&amp;as_yhi=2026&amp;btnG=">TabICLv2: A Better, Faster, Scalable, and Open Tabular Foundation Model</a>.” arXiv Preprint arXiv:2602.11139.</p></li>
 </ul>
 </section>
-<section id="references-3" class="slide level2">
-<h2>References</h2>
-<p><strong>TabPFN</strong>:</p>
+<section id="references-tabpfn" class="slide level2">
+<h2>References (TabPFN)</h2>
 <ul>
 <li><p>Müller, S, N Hollmann, S Arango, J Grabocka, and F Hutter. 2021. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Transformers+can+do+bayesian+inference&amp;as_ylo=2021&amp;as_yhi=2021&amp;btnG=">Transformers Can Do Bayesian Inference</a>.” arXiv Preprint arXiv:2112.10510.</p></li>
 <li><p>Hollmann, N, S Müller, K Eggensperger, and F Hutter. 2022. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=+TabPFN+A+transformer+that+solves+small+tabular+classification+problems+in+a+second&amp;as_ylo=2022&amp;as_yhi=2022&amp;btnG=">TabPFN: A Transformer That Solves Small Tabular Classification Problems in a Second</a>.” arXiv Preprint arXiv:2207.01848.</p></li>
 <li><p>Hollmann, N, S Müller, L Purucker, A Krishnakumar, M Körfer, S Hoo, R Schirrmeister, and F Hutter. 2025. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=Accurate+predictions+on+small+data+with+a+tabular+foundation+model&amp;as_ylo=2025&amp;as_yhi=2025&amp;btnG=">Accurate Predictions on Small Data with a Tabular Foundation Model</a>.” Nature 637 (8045): 319–26.</p></li>
+</ul>
+</section>
+<section id="references-tabpfn-1" class="slide level2">
+<h2>References (TabPFN)</h2>
+<ul>
 <li><p>Grinsztajn, L, K Flöge, O Key, F Birkel, P Jund, B Roof, M Manium, et al.&nbsp;2026. “<a href="https://scholar.google.com/scholar?hl=en&amp;as_sdt=0%2C7&amp;q=+TabPFN+3+Technical+Report&amp;as_ylo=2026&amp;as_yhi=2026&amp;btnG=">TabPFN-3: Technical Report</a>.” arXiv Preprint arXiv:2605.13986.</p></li>
+<li><p>Jäger, Benjamin, Nick Erickson, Léo Grinsztajn, Felix Birkel, Klemens Flöge, Oscar Key, Kürşat Kaya et al.&nbsp;“<a href="https://storage.googleapis.com/prior-labs-tabpfn-public/reports/tabpfn-v3.5-report.pdf">TabPFN-3.5: Technical Report</a>.” arXiv preprint arXiv:2609.17895 (2026).</p></li>
 </ul>
 </section></section>
 <section id="thanks-for-listening" class="title-slide slide level1 center" data-background-color="#FAE093FF">
