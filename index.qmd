@@ -744,15 +744,15 @@ saint_fit <-
   brulee_saint(
     class ~ A + B,
     data = cls_tr, 
-    num_embedding = 20,    # Ok, I admit that I used the tabby and tune packages
+    num_embedding = 22,    # Ok, I admit that I used the tabby and tune packages
     hidden_units = 20,     # to find this combination of parameters. It took a
-    num_attn_heads = 8,    # long time to run. 
-    num_attn_blocks = 4,
-    learn_rate = 0.005,    # learn_rate and dropout for hidden units were 
-    dropout_hidden = 0,    # unusually low for these data. 
+    num_attn_heads = 4,    # long time to run (~ 46m). 
+    num_attn_blocks = 5,
+    learn_rate = 0.004,    # learn_rate and dropout for hidden units were 
+    dropout_hidden = 0.45, # unusually low for these data. 
     epochs = 100,
     stop_iter = 10,  
-    batch_size = 16,
+    batch_size = 221,
     method = "SGD",
     device = "mps"
   )
@@ -789,7 +789,6 @@ autoplot(saint_fit)
 #| fig-width: 5
 #| fig-height: 5
 #| out-width: "100%"
-#| cache: true
 grid_saint <- 
   augment(saint_fit, new_data = cls_grid) |> 
   select(A, B, .pred_class, .pred_red)
@@ -811,10 +810,11 @@ p +
 
 ```{r}
 #| label: saint-summary
-#| cache: true
 nrow(cls_tr)
 summary(saint_fit)
 ```
+
+Roughly `r round(668008/nrow(cls_tr))` parameters per data point :-O
 
 # Foundational Models {background-color="#70B7E1FF"}
 

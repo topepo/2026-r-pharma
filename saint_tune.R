@@ -46,6 +46,7 @@ saint_wflow <- workflow(class ~ A + B, saint_spec)
 
 system.time({
   set.seed(8272)
+  torch::torch_manual_seed(8272)
   saint_res <-
     saint_wflow |>
     tune_grid(
@@ -55,7 +56,10 @@ system.time({
     )
 })
 
-autoplot(saint_res, metric = "brier_class")
 select_best(saint_res, metric = "brier_class") |>
   as.list()
+
+png("saint_tune.png", width = 480 * 1.5, res = 96)
+print(autoplot(saint_res, metric = "brier_class"))
+dev.off()
 

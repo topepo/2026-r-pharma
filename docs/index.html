@@ -724,15 +724,15 @@ Max Kuhn
 <span id="cb16-3"><a href="" aria-label="3"></a>  <span class="fu">brulee_saint</span>(</span>
 <span id="cb16-4"><a href="" aria-label="4"></a>    class <span class="sc">~</span> A <span class="sc">+</span> B,</span>
 <span id="cb16-5"><a href="" aria-label="5"></a>    <span class="at">data =</span> cls_tr, </span>
-<span id="cb16-6"><a href="" aria-label="6"></a>    <span class="at">num_embedding =</span> <span class="dv">20</span>,    <span class="co"># Ok, I admit that I used the tabby and tune packages</span></span>
+<span id="cb16-6"><a href="" aria-label="6"></a>    <span class="at">num_embedding =</span> <span class="dv">22</span>,    <span class="co"># Ok, I admit that I used the tabby and tune packages</span></span>
 <span id="cb16-7"><a href="" aria-label="7"></a>    <span class="at">hidden_units =</span> <span class="dv">20</span>,     <span class="co"># to find this combination of parameters. It took a</span></span>
-<span id="cb16-8"><a href="" aria-label="8"></a>    <span class="at">num_attn_heads =</span> <span class="dv">8</span>,    <span class="co"># long time to run. </span></span>
-<span id="cb16-9"><a href="" aria-label="9"></a>    <span class="at">num_attn_blocks =</span> <span class="dv">4</span>,</span>
-<span id="cb16-10"><a href="" aria-label="10"></a>    <span class="at">learn_rate =</span> <span class="fl">0.005</span>,    <span class="co"># learn_rate and dropout for hidden units were </span></span>
-<span id="cb16-11"><a href="" aria-label="11"></a>    <span class="at">dropout_hidden =</span> <span class="dv">0</span>,    <span class="co"># unusually low for these data. </span></span>
+<span id="cb16-8"><a href="" aria-label="8"></a>    <span class="at">num_attn_heads =</span> <span class="dv">4</span>,    <span class="co"># long time to run (~ 46m). </span></span>
+<span id="cb16-9"><a href="" aria-label="9"></a>    <span class="at">num_attn_blocks =</span> <span class="dv">5</span>,</span>
+<span id="cb16-10"><a href="" aria-label="10"></a>    <span class="at">learn_rate =</span> <span class="fl">0.004</span>,    <span class="co"># learn_rate and dropout for hidden units were </span></span>
+<span id="cb16-11"><a href="" aria-label="11"></a>    <span class="at">dropout_hidden =</span> <span class="fl">0.45</span>, <span class="co"># unusually low for these data. </span></span>
 <span id="cb16-12"><a href="" aria-label="12"></a>    <span class="at">epochs =</span> <span class="dv">100</span>,</span>
 <span id="cb16-13"><a href="" aria-label="13"></a>    <span class="at">stop_iter =</span> <span class="dv">10</span>,  </span>
-<span id="cb16-14"><a href="" aria-label="14"></a>    <span class="at">batch_size =</span> <span class="dv">16</span>,</span>
+<span id="cb16-14"><a href="" aria-label="14"></a>    <span class="at">batch_size =</span> <span class="dv">221</span>,</span>
 <span id="cb16-15"><a href="" aria-label="15"></a>    <span class="at">method =</span> <span class="st">"SGD"</span>,</span>
 <span id="cb16-16"><a href="" aria-label="16"></a>    <span class="at">device =</span> <span class="st">"mps"</span></span>
 <span id="cb16-17"><a href="" aria-label="17"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -774,68 +774,80 @@ Max Kuhn
 <span id="cb18-3"><a href="" aria-label="3"></a><span class="fu">summary</span>(saint_fit)</span>
 <span id="cb18-4"><a href="" aria-label="4"></a><span class="co">#&gt; SAINT architecture</span></span>
 <span id="cb18-5"><a href="" aria-label="5"></a><span class="co">#&gt; inputs: 2 (0 categorical, 2 numeric) | output dim: 2</span></span>
-<span id="cb18-6"><a href="" aria-label="6"></a><span class="co">#&gt; attention: both | embedding dim: 20 | target token: TRUE</span></span>
+<span id="cb18-6"><a href="" aria-label="6"></a><span class="co">#&gt; attention: both | embedding dim: 22 | target token: TRUE</span></span>
 <span id="cb18-7"><a href="" aria-label="7"></a><span class="co">#&gt; </span></span>
 <span id="cb18-8"><a href="" aria-label="8"></a><span class="co">#&gt; Embedding layer</span></span>
-<span id="cb18-9"><a href="" aria-label="9"></a><span class="co">#&gt;   Target token (1 x 20)                       20 params</span></span>
-<span id="cb18-10"><a href="" aria-label="10"></a><span class="co">#&gt;   2 x MLP(1 -&gt; 100 -&gt; 20)                  4,440 params</span></span>
+<span id="cb18-9"><a href="" aria-label="9"></a><span class="co">#&gt;   Target token (1 x 22)                       22 params</span></span>
+<span id="cb18-10"><a href="" aria-label="10"></a><span class="co">#&gt;   2 x MLP(1 -&gt; 100 -&gt; 22)                  4,844 params</span></span>
 <span id="cb18-11"><a href="" aria-label="11"></a><span class="co">#&gt; </span></span>
-<span id="cb18-12"><a href="" aria-label="12"></a><span class="co">#&gt; Transformer backbone (4 blocks, column + row attention)</span></span>
+<span id="cb18-12"><a href="" aria-label="12"></a><span class="co">#&gt; Transformer backbone (5 blocks, column + row attention)</span></span>
 <span id="cb18-13"><a href="" aria-label="13"></a><span class="co">#&gt;   Block 1:</span></span>
 <span id="cb18-14"><a href="" aria-label="14"></a><span class="co">#&gt;     Column attention:</span></span>
-<span id="cb18-15"><a href="" aria-label="15"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-16"><a href="" aria-label="16"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
-<span id="cb18-17"><a href="" aria-label="17"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-18"><a href="" aria-label="18"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-15"><a href="" aria-label="15"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-16"><a href="" aria-label="16"></a><span class="co">#&gt;       Attention(dim=22, heads=4)               5,654 params</span></span>
+<span id="cb18-17"><a href="" aria-label="17"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-18"><a href="" aria-label="18"></a><span class="co">#&gt;       FeedForward(22, GEGLU)                   6,006 params</span></span>
 <span id="cb18-19"><a href="" aria-label="19"></a><span class="co">#&gt;     Row attention:</span></span>
-<span id="cb18-20"><a href="" aria-label="20"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-21"><a href="" aria-label="21"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
-<span id="cb18-22"><a href="" aria-label="22"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-23"><a href="" aria-label="23"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-20"><a href="" aria-label="20"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-21"><a href="" aria-label="21"></a><span class="co">#&gt;       Attention(dim=66, heads=4)              67,650 params</span></span>
+<span id="cb18-22"><a href="" aria-label="22"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-23"><a href="" aria-label="23"></a><span class="co">#&gt;       FeedForward(66, GEGLU)                  52,866 params</span></span>
 <span id="cb18-24"><a href="" aria-label="24"></a><span class="co">#&gt;   Block 2:</span></span>
 <span id="cb18-25"><a href="" aria-label="25"></a><span class="co">#&gt;     Column attention:</span></span>
-<span id="cb18-26"><a href="" aria-label="26"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-27"><a href="" aria-label="27"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
-<span id="cb18-28"><a href="" aria-label="28"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-29"><a href="" aria-label="29"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-26"><a href="" aria-label="26"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-27"><a href="" aria-label="27"></a><span class="co">#&gt;       Attention(dim=22, heads=4)               5,654 params</span></span>
+<span id="cb18-28"><a href="" aria-label="28"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-29"><a href="" aria-label="29"></a><span class="co">#&gt;       FeedForward(22, GEGLU)                   6,006 params</span></span>
 <span id="cb18-30"><a href="" aria-label="30"></a><span class="co">#&gt;     Row attention:</span></span>
-<span id="cb18-31"><a href="" aria-label="31"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-32"><a href="" aria-label="32"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
-<span id="cb18-33"><a href="" aria-label="33"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-34"><a href="" aria-label="34"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-31"><a href="" aria-label="31"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-32"><a href="" aria-label="32"></a><span class="co">#&gt;       Attention(dim=66, heads=4)              67,650 params</span></span>
+<span id="cb18-33"><a href="" aria-label="33"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-34"><a href="" aria-label="34"></a><span class="co">#&gt;       FeedForward(66, GEGLU)                  52,866 params</span></span>
 <span id="cb18-35"><a href="" aria-label="35"></a><span class="co">#&gt;   Block 3:</span></span>
 <span id="cb18-36"><a href="" aria-label="36"></a><span class="co">#&gt;     Column attention:</span></span>
-<span id="cb18-37"><a href="" aria-label="37"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-38"><a href="" aria-label="38"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
-<span id="cb18-39"><a href="" aria-label="39"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-40"><a href="" aria-label="40"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-37"><a href="" aria-label="37"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-38"><a href="" aria-label="38"></a><span class="co">#&gt;       Attention(dim=22, heads=4)               5,654 params</span></span>
+<span id="cb18-39"><a href="" aria-label="39"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-40"><a href="" aria-label="40"></a><span class="co">#&gt;       FeedForward(22, GEGLU)                   6,006 params</span></span>
 <span id="cb18-41"><a href="" aria-label="41"></a><span class="co">#&gt;     Row attention:</span></span>
-<span id="cb18-42"><a href="" aria-label="42"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-43"><a href="" aria-label="43"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
-<span id="cb18-44"><a href="" aria-label="44"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-45"><a href="" aria-label="45"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
+<span id="cb18-42"><a href="" aria-label="42"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-43"><a href="" aria-label="43"></a><span class="co">#&gt;       Attention(dim=66, heads=4)              67,650 params</span></span>
+<span id="cb18-44"><a href="" aria-label="44"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-45"><a href="" aria-label="45"></a><span class="co">#&gt;       FeedForward(66, GEGLU)                  52,866 params</span></span>
 <span id="cb18-46"><a href="" aria-label="46"></a><span class="co">#&gt;   Block 4:</span></span>
 <span id="cb18-47"><a href="" aria-label="47"></a><span class="co">#&gt;     Column attention:</span></span>
-<span id="cb18-48"><a href="" aria-label="48"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-49"><a href="" aria-label="49"></a><span class="co">#&gt;       Attention(dim=20, heads=8)              10,260 params</span></span>
-<span id="cb18-50"><a href="" aria-label="50"></a><span class="co">#&gt;       LayerNorm(20)                               40 params</span></span>
-<span id="cb18-51"><a href="" aria-label="51"></a><span class="co">#&gt;       FeedForward(20, GEGLU)                   4,980 params</span></span>
+<span id="cb18-48"><a href="" aria-label="48"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-49"><a href="" aria-label="49"></a><span class="co">#&gt;       Attention(dim=22, heads=4)               5,654 params</span></span>
+<span id="cb18-50"><a href="" aria-label="50"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-51"><a href="" aria-label="51"></a><span class="co">#&gt;       FeedForward(22, GEGLU)                   6,006 params</span></span>
 <span id="cb18-52"><a href="" aria-label="52"></a><span class="co">#&gt;     Row attention:</span></span>
-<span id="cb18-53"><a href="" aria-label="53"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-54"><a href="" aria-label="54"></a><span class="co">#&gt;       Attention(dim=60, heads=8)             122,940 params</span></span>
-<span id="cb18-55"><a href="" aria-label="55"></a><span class="co">#&gt;       LayerNorm(60)                              120 params</span></span>
-<span id="cb18-56"><a href="" aria-label="56"></a><span class="co">#&gt;       FeedForward(60, GEGLU)                  43,740 params</span></span>
-<span id="cb18-57"><a href="" aria-label="57"></a><span class="co">#&gt; </span></span>
-<span id="cb18-58"><a href="" aria-label="58"></a><span class="co">#&gt; Hidden layers</span></span>
-<span id="cb18-59"><a href="" aria-label="59"></a><span class="co">#&gt;   Linear(20 -&gt; 20)                           420 params</span></span>
-<span id="cb18-60"><a href="" aria-label="60"></a><span class="co">#&gt;   ReLU                                         0 params</span></span>
-<span id="cb18-61"><a href="" aria-label="61"></a><span class="co">#&gt; </span></span>
-<span id="cb18-62"><a href="" aria-label="62"></a><span class="co">#&gt; Output head</span></span>
-<span id="cb18-63"><a href="" aria-label="63"></a><span class="co">#&gt;   Linear(20 -&gt; 2)                             42 params</span></span>
-<span id="cb18-64"><a href="" aria-label="64"></a><span class="co">#&gt;   Softmax                                      0 params</span></span>
-<span id="cb18-65"><a href="" aria-label="65"></a><span class="co">#&gt; </span></span>
-<span id="cb18-66"><a href="" aria-label="66"></a><span class="co">#&gt; Total parameters: 733,882</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb18-53"><a href="" aria-label="53"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-54"><a href="" aria-label="54"></a><span class="co">#&gt;       Attention(dim=66, heads=4)              67,650 params</span></span>
+<span id="cb18-55"><a href="" aria-label="55"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-56"><a href="" aria-label="56"></a><span class="co">#&gt;       FeedForward(66, GEGLU)                  52,866 params</span></span>
+<span id="cb18-57"><a href="" aria-label="57"></a><span class="co">#&gt;   Block 5:</span></span>
+<span id="cb18-58"><a href="" aria-label="58"></a><span class="co">#&gt;     Column attention:</span></span>
+<span id="cb18-59"><a href="" aria-label="59"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-60"><a href="" aria-label="60"></a><span class="co">#&gt;       Attention(dim=22, heads=4)               5,654 params</span></span>
+<span id="cb18-61"><a href="" aria-label="61"></a><span class="co">#&gt;       LayerNorm(22)                               44 params</span></span>
+<span id="cb18-62"><a href="" aria-label="62"></a><span class="co">#&gt;       FeedForward(22, GEGLU)                   6,006 params</span></span>
+<span id="cb18-63"><a href="" aria-label="63"></a><span class="co">#&gt;     Row attention:</span></span>
+<span id="cb18-64"><a href="" aria-label="64"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-65"><a href="" aria-label="65"></a><span class="co">#&gt;       Attention(dim=66, heads=4)              67,650 params</span></span>
+<span id="cb18-66"><a href="" aria-label="66"></a><span class="co">#&gt;       LayerNorm(66)                              132 params</span></span>
+<span id="cb18-67"><a href="" aria-label="67"></a><span class="co">#&gt;       FeedForward(66, GEGLU)                  52,866 params</span></span>
+<span id="cb18-68"><a href="" aria-label="68"></a><span class="co">#&gt; </span></span>
+<span id="cb18-69"><a href="" aria-label="69"></a><span class="co">#&gt; Hidden layers</span></span>
+<span id="cb18-70"><a href="" aria-label="70"></a><span class="co">#&gt;   Linear(22 -&gt; 20)                           460 params</span></span>
+<span id="cb18-71"><a href="" aria-label="71"></a><span class="co">#&gt;   ReLU                                         0 params</span></span>
+<span id="cb18-72"><a href="" aria-label="72"></a><span class="co">#&gt; </span></span>
+<span id="cb18-73"><a href="" aria-label="73"></a><span class="co">#&gt; Output head</span></span>
+<span id="cb18-74"><a href="" aria-label="74"></a><span class="co">#&gt;   Linear(20 -&gt; 2)                             42 params</span></span>
+<span id="cb18-75"><a href="" aria-label="75"></a><span class="co">#&gt;   Softmax                                      0 params</span></span>
+<span id="cb18-76"><a href="" aria-label="76"></a><span class="co">#&gt; </span></span>
+<span id="cb18-77"><a href="" aria-label="77"></a><span class="co">#&gt; Total parameters: 668,008</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>Roughly 891 parameters per data point :-O</p>
 </section></section>
 <section>
 <section id="foundational-models" class="title-slide slide level1 center" data-background-color="#70B7E1FF">

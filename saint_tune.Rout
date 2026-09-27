@@ -81,6 +81,7 @@ Type 'q()' to quit R.
 > 
 > system.time({
 +   set.seed(8272)
++   torch::torch_manual_seed(8272)
 +   saint_res <-
 +     saint_wflow |>
 +     tune_grid(
@@ -90,18 +91,45 @@ Type 'q()' to quit R.
 +     )
 + })
     user   system  elapsed 
-   1.108    0.140 2768.750 
+   1.143    0.135 2949.358 
 > 
-> autoplot(saint_res, metric = "brier_class")
-> select_best(saint_res, metric = "brier_class")
-# A tibble: 1 × 9
-  epochs num_embedding num_attn_heads num_attn_blocks dropout_hidden
-   <int>         <int>          <int>           <int>          <dbl>
-1    895            23              3               1         0.0974
-# ℹ 4 more variables: hidden_units <int>, learn_rate <dbl>, batch_size <int>,
-#   .config <chr>
+> select_best(saint_res, metric = "brier_class") |>
++   as.list()
+$epochs
+[1] 322
+
+$num_embedding
+[1] 22
+
+$num_attn_heads
+[1] 4
+
+$num_attn_blocks
+[1] 5
+
+$dropout_hidden
+[1] 0.4289474
+
+$hidden_units
+[1] 20
+
+$learn_rate
+[1] 0.004029611
+
+$batch_size
+[1] 221
+
+$.config
+[1] "pre0_mod07_post0"
+
+> 
+> png("saint_tune.png", width = 480 * 1.5, res = 96)
+> print(autoplot(saint_res, metric = "brier_class"))
+> dev.off()
+null device 
+          1 
 > 
 > 
 > proc.time()
     user   system  elapsed 
-   2.668    0.295 2770.957 
+   2.625    0.301 2951.466 
