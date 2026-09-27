@@ -47,24 +47,25 @@ We will use a few packages and will need devel versions of a few.
 Let's install `r pkg(pak)`: 
 
 ```r
-install.packages("pak")
+install.packages(c("tidymodels", "brulee"))
 ```
-
 
 . . .
 
 then: 
 
 ```r
-pak::pak(c("tidymodels", "brulee"))
-pak::pak(c("tidymodels/parsnip", "tidymodels/tabby"))
-
+brulee::tab_icl_download_weights()
 ```
 
-then: 
+. . .
+
+if tuning models: 
 
 ```r
-brulee::tab_icl_download_weights()
+install.packages("pak")
+pak::pak(c("tidymodels/parsnip", "tidymodels/tabby"))
+
 ```
 
 
@@ -441,6 +442,14 @@ p +
     breaks = 1 / 2,
     col = "black",
     linewidth = 1
+  ) + 
+  geom_contour(
+    data = grid_mlp,
+    aes(z = .pred_red),
+    breaks = 1 / 2,
+    col = "black",
+    alpha = 1 / 3,
+    linewidth = 1
   )
 ```
 :::
@@ -531,7 +540,7 @@ $$
 
 <br>
 
-The hidden units $f_j(\boldsymbol{H}_{j-1})$ estimate the residual of $\boldsymbol{H}_{j-1} - \boldsymbol{H}_{j}$
+The hidden units $f_j(\boldsymbol{H}_{j-1})$ estimate the residual $\boldsymbol{H}_{j-1} - \boldsymbol{H}_{j}$
 
 ## About GPUs
 
