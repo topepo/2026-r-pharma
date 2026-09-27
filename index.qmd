@@ -44,8 +44,6 @@ We will use a few packages and will need devel versions of a few.
 
 <br>
 
-Let's install `r pkg(pak)`: 
-
 ```r
 install.packages(c("tidymodels", "brulee"))
 ```
@@ -64,8 +62,7 @@ if tuning models:
 
 ```r
 install.packages("pak")
-pak::pak(c("tidymodels/parsnip", "tidymodels/tabby"))
-
+pak::pak(c(""tidymodels/tabby"))
 ```
 
 

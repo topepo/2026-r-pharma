@@ -56,5 +56,6 @@ system.time({
 })
 
 autoplot(saint_res, metric = "brier_class")
-select_best(saint_res, metric = "brier_class")
+select_best(saint_res, metric = "brier_class") |>
+  as.list()
 

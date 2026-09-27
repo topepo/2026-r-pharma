@@ -1,0 +1,107 @@
+
+R version 4.5.2 (2025-10-31) -- "[Not] Part in a Rumble"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(tidymodels)
+── Attaching packages ────────────────────────────────────── tidymodels 1.5.0 ──
+✔ broom        1.0.13         ✔ recipes      1.4.0     
+✔ dials        1.4.4          ✔ rsample      1.3.2     
+✔ dplyr        1.2.1          ✔ tailor       0.1.0     
+✔ ggplot2      4.0.3          ✔ tidyr        1.3.2     
+✔ infer        1.1.0          ✔ tune         2.1.0     
+✔ modeldata    1.6.0          ✔ workflows    1.3.0     
+✔ parsnip      1.6.0.9001     ✔ workflowsets 1.1.1     
+✔ purrr        1.2.2          ✔ yardstick    1.4.0     
+── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ purrr::discard() masks scales::discard()
+✖ dplyr::filter()  masks stats::filter()
+✖ dplyr::lag()     masks stats::lag()
+✖ recipes::step()  masks stats::step()
+> library(tabby)
+> theme_set(theme_bw())
+> 
+> cores <- parallel::detectCores()
+> 
+> # ------------------------------------------------------------------------------
+> 
+> load("cls_data.RData")
+> 
+> set.seed(987)
+> cls_split <- initial_split(cls_data)
+> cls_split
+<Training/Testing/Total>
+<750/250/1000>
+> 
+> cls_tr <- training(cls_split)
+> cls_te <- testing(cls_split)
+> 
+> set.seed(826)
+> cls_rs <- vfold_cv(cls_tr)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> # Do a few tasks in parallel with the GPU but not too many (=too much GPU memory needed)
+> mirai::daemons(4)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> saint_spec <-
++   tabular_saint(
++     num_embedding = tune(),
++     hidden_units = tune(),
++     num_attn_heads = tune(),
++     num_attn_blocks = tune(),
++     learn_rate = tune(),
++     dropout_hidden = tune(),
++     epochs = tune(),
++     stop_iter = 10,
++     batch_size = tune(),
++     mode = "classification"
++   ) |>
++   set_engine("brulee", method = "SGD", device = "mps")
+> 
+> saint_wflow <- workflow(class ~ A + B, saint_spec)
+> 
+> # ------------------------------------------------------------------------------
+> 
+> system.time({
++   set.seed(8272)
++   saint_res <-
++     saint_wflow |>
++     tune_grid(
++       resamples = cls_rs,
++       grid = 20,
++       metrics = metric_set(brier_class, roc_auc)
++     )
++ })
+    user   system  elapsed 
+   1.108    0.140 2768.750 
+> 
+> autoplot(saint_res, metric = "brier_class")
+> select_best(saint_res, metric = "brier_class")
+# A tibble: 1 × 9
+  epochs num_embedding num_attn_heads num_attn_blocks dropout_hidden
+   <int>         <int>          <int>           <int>          <dbl>
+1    895            23              3               1         0.0974
+# ℹ 4 more variables: hidden_units <int>, learn_rate <dbl>, batch_size <int>,
+#   .config <chr>
+> 
+> 
+> proc.time()
+    user   system  elapsed 
+   2.668    0.295 2770.957 
