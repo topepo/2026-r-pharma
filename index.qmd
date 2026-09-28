@@ -62,7 +62,7 @@ if tuning models:
 
 ```r
 install.packages("pak")
-pak::pak(c(""tidymodels/tabby"))
+pak::pak(c("tidymodels/tabby"))
 ```
 
 
